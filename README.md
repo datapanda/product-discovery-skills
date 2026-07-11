@@ -16,64 +16,28 @@ Three AI skills for **pressure-testing process diagrams** — physical processes
 
 ## Install
 
-### Claude Code
+These are [Claude Code Agent Skills](https://docs.claude.com/en/docs/claude-code/skills) — one `<name>/SKILL.md` per skill, auto-activating on intent and invocable with `/name`.
 
-**Recommended — Agent Skills** (auto-activate + `/name` invocation):
 ```
 cp -r skills/* ~/.claude/skills/          # personal, all projects
 # or, per-project:
 cp -r skills/* .claude/skills/
 ```
 
-**Legacy — slash commands** (single-file, still fully supported):
-```
-cp claude-code/commands/*.md ~/.claude/commands/
-```
-Invoke with `/pressure-test-diagram`, `/interrogate-data-sources`, `/assess-diagram-quality`.
+Invoke with `/assess-diagram-quality`, `/pressure-test-diagram`, or `/interrogate-data-sources`, or just describe a diagram and let them auto-activate.
 
-### GitHub Copilot
+`SKILL.md` is an open standard also read by GitHub Copilot, so the same `skills/` folder works there via `.github/skills/`.
 
-**Prompt files** (VS Code, Visual Studio 17.10+, JetBrains) — invoke with `/name` in Copilot Chat:
-```
-mkdir -p .github/prompts && cp github-copilot/prompts/*.prompt.md .github/prompts/
-```
+## Repository layout
 
-**Agent Skills** — the `skills/` folder is the same open standard Copilot uses; auto-activates on intent:
 ```
-mkdir -p .github/skills && cp -r skills/* .github/skills/
+skills/
+  assess-diagram-quality/SKILL.md
+  interrogate-data-sources/SKILL.md
+  pressure-test-diagram/SKILL.md
 ```
 
-### ChatGPT
-
-The `chatgpt/` files are ready to paste — no frontmatter. Two ways to use them:
-- **Custom GPT:** GPT Builder → Configure → paste a skill's full text into **Instructions**. The GPT will ask for the diagram, then run the skill.
-- **Project:** create a Project → paste a skill into the project **Instructions** field.
-
-(ChatGPT's account-level Custom Instructions fields cap at ~1,500 characters — too small for these. Use a Custom GPT or Project instead.)
-
-### Microsoft Copilot Studio
-
-The `copilot-studio/` files carry YAML frontmatter (`name`, `description`) followed by the instruction body — the convention for declarative agents. To install: create an agent in Agent Builder (or `m365.cloud.microsoft/chat/agent/new`), copy `name` and `description` from the frontmatter into the agent's Name and Description fields, and paste the body (everything below the closing `---`) into **Instructions**. All three bodies are sized under the ~8,000-character instruction limit.
-
-## Formats at a glance
-
-| Platform | Folder | File form | Input mechanism |
-|----------|--------|-----------|-----------------|
-| Claude Code (skills) | `skills/` | `<name>/SKILL.md` | `$ARGUMENTS` |
-| Claude Code (legacy) | `claude-code/commands/` | `<name>.md` | `$ARGUMENTS` |
-| GitHub Copilot | `github-copilot/prompts/` | `<name>.prompt.md` | `${input:diagram}` |
-| ChatGPT | `chatgpt/` | `<name>.md` (paste-in) | user provides in chat |
-| Copilot Studio | `copilot-studio/` | `<name>.md` — YAML frontmatter (`name`, `description`) + body | user provides in chat |
-
-`SKILL.md` is an open standard shared by Claude Code and GitHub Copilot, so the `skills/` folder works in both.
-
-## Editing
-
-`skills/<name>/SKILL.md` is the source of truth. Edit there, then regenerate every other variant:
-```
-python build.py
-```
-Don't hand-edit the generated folders — `build.py` overwrites them.
+Each `SKILL.md` carries YAML frontmatter (`name`, `description`, `argument-hint`, `allowed-tools`, `model`) followed by the skill instructions. Edit these files directly — they are the source of truth.
 
 ## License
 
