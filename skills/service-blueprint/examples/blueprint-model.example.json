@@ -1,0 +1,908 @@
+{
+ "meta": {
+  "title": "Auto Insurance Claim (FNOL → Settlement) — As-Is Service Blueprint",
+  "process_domain": "auto insurance claims",
+  "generated_from": [
+   "A_intake_maria.txt",
+   "B_adjuster_devon.txt",
+   "C_payments_priya.txt"
+  ],
+  "transcript_count": 3,
+  "lane_model": "service_stack",
+  "confidence_notes": "Synthesized from three role-segmented discovery interviews (intake, adjuster, payments). Coverage is complementary, not overlapping — each role owns a segment — so core-ness here rests on role ownership + narration, NOT cross-transcript frequency (the 0.6 rule doesn't apply when interviews don't overlap). Cross-source corroboration exists at the handoffs: claim close (adjuster + payments), SIU hold (adjuster + payments), and escalated approval (adjuster + payments). One conflict surfaced and is preserved: intake says a coverage check happens at triage; the adjuster says real coverage verification happens during investigation — both are shown. Service-stack lane model: the claimant is present at report, document supply, and payment; agents/adjuster are frontstage; triage/estimating are backstage; policy, payments and reconciliation are support.",
+  "generated_at": "2026-07-13"
+ },
+ "lanes": [
+  {
+   "id": "customer_journey",
+   "label": "Customer Journey",
+   "color": "#D07B45"
+  },
+  {
+   "id": "fs_employee",
+   "label": "Employee actions",
+   "group": "frontstage"
+  },
+  {
+   "id": "fs_systems",
+   "label": "Systems",
+   "group": "frontstage"
+  },
+  {
+   "id": "backstage",
+   "label": "Backstage actions",
+   "color": "#8A8177"
+  },
+  {
+   "id": "support",
+   "label": "Support processes",
+   "color": "#7E8D80"
+  }
+ ],
+ "lane_groups": [
+  {
+   "id": "frontstage",
+   "label": "Front Stage",
+   "color": "#587DA8"
+  }
+ ],
+ "phases": [
+  {
+   "id": "report",
+   "label": "Report (FNOL)"
+  },
+  {
+   "id": "intake",
+   "label": "Intake & Triage"
+  },
+  {
+   "id": "assign",
+   "label": "Assignment"
+  },
+  {
+   "id": "investigate",
+   "label": "Investigation"
+  },
+  {
+   "id": "assess",
+   "label": "Assessment & Estimate"
+  },
+  {
+   "id": "approve",
+   "label": "Approval"
+  },
+  {
+   "id": "pay",
+   "label": "Payment"
+  },
+  {
+   "id": "close",
+   "label": "Close"
+  }
+ ],
+ "systems_of_record": [
+  {
+   "id": "claimcenter",
+   "name": "ClaimCenter",
+   "type": "Internal"
+  },
+  {
+   "id": "policypro",
+   "name": "PolicyPro",
+   "type": "Internal"
+  },
+  {
+   "id": "ccone",
+   "name": "CCC ONE",
+   "type": "Internal"
+  },
+  {
+   "id": "docvault",
+   "name": "DocVault",
+   "type": "Internal"
+  },
+  {
+   "id": "paysys",
+   "name": "PaySys",
+   "type": "ERP"
+  },
+  {
+   "id": "bank",
+   "name": "Bank portal",
+   "type": "Internal"
+  },
+  {
+   "id": "triage_xls",
+   "name": "Triage spreadsheet",
+   "type": "Spreadsheet"
+  },
+  {
+   "id": "recon_xls",
+   "name": "Reconciliation spreadsheet",
+   "type": "Spreadsheet"
+  },
+  {
+   "id": "phone",
+   "name": "Phone",
+   "type": "Comms"
+  },
+  {
+   "id": "app",
+   "name": "Mobile app",
+   "type": "Comms"
+  },
+  {
+   "id": "email",
+   "name": "Email",
+   "type": "Comms"
+  }
+ ],
+ "steps": [
+  {
+   "id": "s1",
+   "phase": "report",
+   "lane": "customer_journey",
+   "order": 1,
+   "name": "Customer reports the claim",
+   "actor": "Customer",
+   "systems": [
+    "phone",
+    "app"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "A_intake_maria.txt"
+   ],
+   "confidence": "high",
+   "description": "Customer reports a loss by phone or through the mobile app; the app path opens a draft that an agent must still review.",
+   "channel": "Phone / App",
+   "tags": [
+    "fnol",
+    "inbound"
+   ],
+   "evidence": "A_intake_maria.txt"
+  },
+  {
+   "id": "s2",
+   "phase": "report",
+   "lane": "fs_systems",
+   "order": 2,
+   "name": "Mobile app captures FNOL draft",
+   "actor": "Customer portal",
+   "systems": [
+    "app"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "A_intake_maria.txt"
+   ],
+   "confidence": "medium",
+   "description": "Self-service app auto-creates a draft claim in a queue, but performs no policy check itself.",
+   "tags": [
+    "self-service"
+   ],
+   "pain_points": "App does no policy check — a common source of rework."
+  },
+  {
+   "id": "s3",
+   "phase": "report",
+   "lane": "fs_employee",
+   "order": 3,
+   "name": "Agent confirms policy is active",
+   "actor": "Intake agent",
+   "systems": [
+    "policypro"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "A_intake_maria.txt"
+   ],
+   "confidence": "high",
+   "description": "Agent confirms the policy is active and in force before the claim is real.",
+   "channel": "Phone",
+   "tags": [
+    "coverage"
+   ]
+  },
+  {
+   "id": "s4",
+   "phase": "intake",
+   "lane": "fs_employee",
+   "order": 4,
+   "name": "Agent logs first notice of loss",
+   "actor": "Intake agent",
+   "systems": [
+    "claimcenter",
+    "phone"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "A_intake_maria.txt"
+   ],
+   "confidence": "high",
+   "description": "Agent opens the claim in ClaimCenter and captures what/when/where, injuries and drivability. An injury script is read for compliance.",
+   "duration": "~8 min",
+   "channel": "Phone",
+   "tags": [
+    "fnol",
+    "compliance"
+   ],
+   "success_metric": "FNOL captured on first call",
+   "evidence": "A_intake_maria.txt"
+  },
+  {
+   "id": "s5",
+   "phase": "intake",
+   "lane": "backstage",
+   "order": 5,
+   "name": "Triage & severity assessment",
+   "actor": "Intake agent",
+   "systems": [
+    "triage_xls",
+    "claimcenter"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "A_intake_maria.txt"
+   ],
+   "confidence": "high",
+   "description": "Agent assigns severity (low/med/high) from the loss description and injuries.",
+   "tags": [
+    "triage"
+   ],
+   "pain_points": "Severity is worked in a triage spreadsheet then re-keyed into ClaimCenter (double entry)."
+  },
+  {
+   "id": "s6",
+   "phase": "assign",
+   "lane": "backstage",
+   "order": 6,
+   "name": "Route to queue & assign adjuster",
+   "actor": "Routing",
+   "systems": [
+    "claimcenter"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "A_intake_maria.txt"
+   ],
+   "confidence": "high",
+   "description": "Based on severity the claim routes to a queue; injuries always route to a senior adjuster.",
+   "tags": [
+    "routing"
+   ]
+  },
+  {
+   "id": "s7",
+   "phase": "assign",
+   "lane": "backstage",
+   "order": 7,
+   "name": "Adjuster reviews assigned claim",
+   "actor": "Adjuster",
+   "systems": [
+    "claimcenter"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "B_adjuster_devon.txt"
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "s8",
+   "phase": "investigate",
+   "lane": "fs_employee",
+   "order": 8,
+   "name": "Adjuster contacts the customer",
+   "actor": "Adjuster",
+   "systems": [
+    "claimcenter",
+    "phone",
+    "email"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "B_adjuster_devon.txt"
+   ],
+   "confidence": "high",
+   "description": "Adjuster contacts the customer to confirm the story and set expectations; logs the contact.",
+   "channel": "Phone / Email",
+   "tags": [
+    "contact"
+   ]
+  },
+  {
+   "id": "s9",
+   "phase": "investigate",
+   "lane": "customer_journey",
+   "order": 9,
+   "name": "Customer provides details & documents",
+   "actor": "Customer",
+   "systems": [
+    "app",
+    "email"
+   ],
+   "variant": "core",
+   "support_count": 2,
+   "occurs_in": [
+    "A_intake_maria.txt",
+    "B_adjuster_devon.txt"
+   ],
+   "confidence": "high",
+   "description": "Customer supplies photos, the other driver's details, police report and any required documents.",
+   "channel": "App / Email",
+   "tags": [
+    "evidence"
+   ]
+  },
+  {
+   "id": "s10",
+   "phase": "investigate",
+   "lane": "support",
+   "order": 10,
+   "name": "Adjuster verifies coverage in detail",
+   "actor": "Adjuster",
+   "systems": [
+    "policypro"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "B_adjuster_devon.txt"
+   ],
+   "confidence": "medium",
+   "description": "Adjuster checks deductible, limits, rental and exclusions in PolicyPro.",
+   "tags": [
+    "coverage"
+   ],
+   "pain_points": "CONFLICT: intake believes coverage is verified at triage; the adjuster says the real verification happens here."
+  },
+  {
+   "id": "s11",
+   "phase": "assess",
+   "lane": "backstage",
+   "order": 11,
+   "name": "Damage assessed & estimate written",
+   "actor": "Adjuster / shop",
+   "systems": [
+    "ccone",
+    "docvault"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "B_adjuster_devon.txt"
+   ],
+   "confidence": "high",
+   "description": "Mostly a photo estimate written in CCC ONE; a field appraiser or approved shop is used for bigger or disputed damage. Documents live in DocVault.",
+   "duration": "1–3 days",
+   "channel": "Photos / Shop",
+   "tags": [
+    "estimate"
+   ],
+   "success_metric": "Accurate first estimate (few supplements)",
+   "evidence": "B_adjuster_devon.txt"
+  },
+  {
+   "id": "s12",
+   "phase": "approve",
+   "lane": "backstage",
+   "order": 12,
+   "name": "Adjuster approves settlement",
+   "actor": "Adjuster",
+   "systems": [
+    "claimcenter"
+   ],
+   "variant": "core",
+   "support_count": 2,
+   "occurs_in": [
+    "B_adjuster_devon.txt",
+    "C_payments_priya.txt"
+   ],
+   "confidence": "high",
+   "description": "Once coverage is confirmed and the estimate agreed, the adjuster approves the amount up to their authority limit ($15k).",
+   "tags": [
+    "approval"
+   ],
+   "success_metric": "Approved within authority without rework"
+  },
+  {
+   "id": "s13",
+   "phase": "pay",
+   "lane": "support",
+   "order": 13,
+   "name": "Payments validates the approved settlement",
+   "actor": "Payments specialist",
+   "systems": [
+    "claimcenter"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "C_payments_priya.txt"
+   ],
+   "confidence": "high",
+   "description": "Payments checks payee details, that coverage/approval are present and that amounts match; anything off is kicked back to the adjuster.",
+   "tags": [
+    "control"
+   ],
+   "pain_points": "Kickbacks are handled entirely over email — no clean flag."
+  },
+  {
+   "id": "s14",
+   "phase": "pay",
+   "lane": "support",
+   "order": 14,
+   "name": "Payment released (ACH/check)",
+   "actor": "Payments specialist",
+   "systems": [
+    "paysys"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "C_payments_priya.txt"
+   ],
+   "confidence": "high",
+   "description": "Payment is set up and released in PaySys, mostly ACH, some checks.",
+   "duration": "same day",
+   "channel": "ACH / Check",
+   "tags": [
+    "payment"
+   ]
+  },
+  {
+   "id": "s15",
+   "phase": "pay",
+   "lane": "customer_journey",
+   "order": 15,
+   "name": "Customer receives payment",
+   "actor": "Customer",
+   "systems": [],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "C_payments_priya.txt"
+   ],
+   "confidence": "medium",
+   "description": "Claimant (or the repair shop) receives the settlement payment.",
+   "channel": "ACH / Check"
+  },
+  {
+   "id": "s16",
+   "phase": "close",
+   "lane": "backstage",
+   "order": 16,
+   "name": "Claim closed & documented",
+   "actor": "Adjuster / Payments",
+   "systems": [
+    "claimcenter"
+   ],
+   "variant": "core",
+   "support_count": 2,
+   "occurs_in": [
+    "B_adjuster_devon.txt",
+    "C_payments_priya.txt"
+   ],
+   "confidence": "high",
+   "description": "After payment the claim is marked paid and closed in ClaimCenter with the outcome documented.",
+   "tags": [
+    "close"
+   ]
+  },
+  {
+   "id": "s17",
+   "phase": "close",
+   "lane": "support",
+   "order": 17,
+   "name": "Daily payment reconciliation",
+   "actor": "Payments team",
+   "systems": [
+    "paysys",
+    "bank",
+    "recon_xls"
+   ],
+   "variant": "core",
+   "support_count": 1,
+   "occurs_in": [
+    "C_payments_priya.txt"
+   ],
+   "confidence": "high",
+   "description": "The team reconciles the day's payments in PaySys against the bank file in a spreadsheet, outside ClaimCenter.",
+   "tags": [
+    "reconciliation"
+   ],
+   "pain_points": "Reconciliation lives entirely outside ClaimCenter — its own headache."
+  },
+  {
+   "id": "dv1",
+   "phase": "investigate",
+   "lane": "backstage",
+   "order": 11,
+   "name": "Request missing docs — claim stalls",
+   "actor": "Adjuster",
+   "systems": [
+    "email",
+    "claimcenter"
+   ],
+   "variant": "deviation",
+   "support_count": 2,
+   "occurs_in": [
+    "A_intake_maria.txt",
+    "B_adjuster_devon.txt"
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "dv2",
+   "phase": "assess",
+   "lane": "fs_systems",
+   "order": 5,
+   "name": "Automated virtual estimate (no adjuster)",
+   "actor": "Virtual estimate system",
+   "systems": [
+    "ccone"
+   ],
+   "variant": "deviation",
+   "support_count": 1,
+   "occurs_in": [
+    "A_intake_maria.txt"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "dv3",
+   "phase": "assess",
+   "lane": "backstage",
+   "order": 5,
+   "name": "CAT team light-touch handling",
+   "actor": "CAT team",
+   "systems": [
+    "claimcenter"
+   ],
+   "variant": "deviation",
+   "support_count": 1,
+   "occurs_in": [
+    "A_intake_maria.txt"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "dv4",
+   "phase": "assess",
+   "lane": "backstage",
+   "order": 11,
+   "name": "Re-inspect & re-estimate (supplement)",
+   "actor": "Adjuster",
+   "systems": [
+    "ccone",
+    "docvault"
+   ],
+   "variant": "deviation",
+   "support_count": 1,
+   "occurs_in": [
+    "B_adjuster_devon.txt"
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "dv5",
+   "phase": "assess",
+   "lane": "backstage",
+   "order": 11,
+   "name": "Total-loss valuation, salvage & title",
+   "actor": "Adjuster",
+   "systems": [
+    "ccone",
+    "claimcenter"
+   ],
+   "variant": "deviation",
+   "support_count": 1,
+   "occurs_in": [
+    "B_adjuster_devon.txt"
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "dv6",
+   "phase": "assess",
+   "lane": "backstage",
+   "order": 11,
+   "name": "SIU investigation hold",
+   "actor": "SIU",
+   "systems": [
+    "claimcenter"
+   ],
+   "variant": "deviation",
+   "support_count": 2,
+   "occurs_in": [
+    "B_adjuster_devon.txt",
+    "C_payments_priya.txt"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "id": "dv7",
+   "phase": "approve",
+   "lane": "backstage",
+   "order": 12,
+   "name": "Manager / second approval",
+   "actor": "Claims manager / Payments manager",
+   "systems": [
+    "claimcenter"
+   ],
+   "variant": "deviation",
+   "support_count": 2,
+   "occurs_in": [
+    "B_adjuster_devon.txt",
+    "C_payments_priya.txt"
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "dv8",
+   "phase": "pay",
+   "lane": "support",
+   "order": 13,
+   "name": "Kick back to adjuster (over email)",
+   "actor": "Payments specialist",
+   "systems": [
+    "email",
+    "claimcenter"
+   ],
+   "variant": "deviation",
+   "support_count": 1,
+   "occurs_in": [
+    "C_payments_priya.txt"
+   ],
+   "confidence": "high"
+  },
+  {
+   "id": "dv9",
+   "phase": "pay",
+   "lane": "support",
+   "order": 13,
+   "name": "Legal-negotiated settlement",
+   "actor": "Legal",
+   "systems": [
+    "email"
+   ],
+   "variant": "deviation",
+   "support_count": 1,
+   "occurs_in": [
+    "C_payments_priya.txt"
+   ],
+   "confidence": "medium"
+  }
+ ],
+ "connections": [
+  {
+   "from": "s1",
+   "to": "s2",
+   "type": "handoff"
+  },
+  {
+   "from": "s2",
+   "to": "s3",
+   "type": "handoff"
+  },
+  {
+   "from": "s3",
+   "to": "s4",
+   "type": "sequence"
+  },
+  {
+   "from": "s4",
+   "to": "s5",
+   "type": "handoff"
+  },
+  {
+   "from": "s5",
+   "to": "s6",
+   "type": "sequence"
+  },
+  {
+   "from": "s6",
+   "to": "s7",
+   "type": "sequence"
+  },
+  {
+   "from": "s7",
+   "to": "s8",
+   "type": "handoff"
+  },
+  {
+   "from": "s8",
+   "to": "s9",
+   "type": "handoff"
+  },
+  {
+   "from": "s9",
+   "to": "s10",
+   "type": "handoff"
+  },
+  {
+   "from": "s10",
+   "to": "s11",
+   "type": "handoff"
+  },
+  {
+   "from": "s11",
+   "to": "s12",
+   "type": "sequence"
+  },
+  {
+   "from": "s12",
+   "to": "s13",
+   "type": "handoff"
+  },
+  {
+   "from": "s13",
+   "to": "s14",
+   "type": "sequence"
+  },
+  {
+   "from": "s14",
+   "to": "s15",
+   "type": "handoff"
+  },
+  {
+   "from": "s15",
+   "to": "s16",
+   "type": "handoff"
+  },
+  {
+   "from": "s16",
+   "to": "s17",
+   "type": "handoff"
+  }
+ ],
+ "deviations": [
+  {
+   "id": "d1",
+   "label": "Missing information / documentation",
+   "trigger": "Required details or documents not received (at intake or during assessment)",
+   "branch_from": "s11",
+   "rejoin_at": "s9",
+   "steps": [
+    "dv1"
+   ],
+   "occurs_in": [
+    "A_intake_maria.txt",
+    "B_adjuster_devon.txt"
+   ],
+   "frequency_note": "Common; the most painful loop in intake and assessment",
+   "impact": "Stalls the claim for days waiting on the customer"
+  },
+  {
+   "id": "d2",
+   "label": "Low-severity virtual fast-track",
+   "trigger": "Low severity, vehicle drivable, no injuries",
+   "branch_from": "s5",
+   "rejoin_at": "s12",
+   "steps": [
+    "dv2"
+   ],
+   "occurs_in": [
+    "A_intake_maria.txt"
+   ],
+   "frequency_note": "A share of simple claims",
+   "impact": "Skips full adjuster handling"
+  },
+  {
+   "id": "d3",
+   "label": "Catastrophe (CAT) fast-track",
+   "trigger": "Declared catastrophe event (CAT mode)",
+   "branch_from": "s5",
+   "rejoin_at": "s12",
+   "steps": [
+    "dv3"
+   ],
+   "occurs_in": [
+    "A_intake_maria.txt"
+   ],
+   "frequency_note": "A few times a year; huge volume",
+   "impact": "Skips normal triage; specialized lighter process"
+  },
+  {
+   "id": "d4",
+   "label": "Supplement / re-inspection",
+   "trigger": "Shop tears down the car and finds hidden damage",
+   "branch_from": "s11",
+   "rejoin_at": "s12",
+   "steps": [
+    "dv4"
+   ],
+   "occurs_in": [
+    "B_adjuster_devon.txt"
+   ],
+   "frequency_note": "Fairly common on repairs",
+   "impact": "Reopens the estimate; delays approval"
+  },
+  {
+   "id": "d5",
+   "label": "Total loss path",
+   "trigger": "Repair estimate above ~75% of vehicle value",
+   "branch_from": "s11",
+   "rejoin_at": "s12",
+   "steps": [
+    "dv5"
+   ],
+   "occurs_in": [
+    "B_adjuster_devon.txt"
+   ],
+   "frequency_note": "When damage is severe",
+   "impact": "A different sub-process (valuation, salvage, title)"
+  },
+  {
+   "id": "d6",
+   "label": "SIU fraud referral (hold)",
+   "trigger": "Fraud red flags — inconsistent story, staged damage, brand-new policy",
+   "branch_from": "s11",
+   "rejoin_at": "s12",
+   "steps": [
+    "dv6"
+   ],
+   "occurs_in": [
+    "B_adjuster_devon.txt",
+    "C_payments_priya.txt"
+   ],
+   "frequency_note": "~1 in 20 (adjuster); a handful a week reach payments frozen",
+   "impact": "Freezes the claim; payment cannot release until SIU clears or denies"
+  },
+  {
+   "id": "d7",
+   "label": "Escalated approval for large settlements",
+   "trigger": "Over adjuster authority ($15k) and/or payment over $50k",
+   "branch_from": "s12",
+   "rejoin_at": "s13",
+   "steps": [
+    "dv7"
+   ],
+   "occurs_in": [
+    "B_adjuster_devon.txt",
+    "C_payments_priya.txt"
+   ],
+   "frequency_note": "Large total-loss payouts always hit this",
+   "impact": "Adds ~1 day; two control tiers ($15k adjuster, $50k payments)"
+  },
+  {
+   "id": "d8",
+   "label": "Payment validation kickback",
+   "trigger": "Bad payee or mismatched amount found at validation",
+   "branch_from": "s13",
+   "rejoin_at": "s12",
+   "steps": [
+    "dv8"
+   ],
+   "occurs_in": [
+    "C_payments_priya.txt"
+   ],
+   "frequency_note": "Recurring",
+   "impact": "1–2 day round-trip, all handled over email"
+  },
+  {
+   "id": "d9",
+   "label": "Litigation / dispute",
+   "trigger": "Customer retains an attorney or disputes the claim",
+   "branch_from": "s13",
+   "rejoin_at": "s14",
+   "steps": [
+    "dv9"
+   ],
+   "occurs_in": [
+    "C_payments_priya.txt"
+   ],
+   "frequency_note": "Rarer but the big, ugly ones",
+   "impact": "Routes to Legal; much slower; pay only once Legal signs off"
+  }
+ ]
+}
