@@ -54,11 +54,13 @@ skills/
   interrogate-data-sources/SKILL.md
   pressure-test-diagram/SKILL.md
   service-blueprint/
-    SKILL.md                  # entry point + pipeline overview
-    references/               # extraction, synthesis, schema, rendering docs
-    assets/blueprint-template.html
+    SKILL.md                          # entry point + pipeline overview
+    README.md                         # human-facing overview
+    references/                       # extraction, synthesis, schema, rendering docs
+    assets/blueprint-template.html    # self-contained render target (single-page PDF export)
     examples/blueprint-model.example.json
-    scripts/render.py         # stdlib-only validate + render
+    scripts/render.py                 # stdlib-only validate + render
+    theme-source/                     # provenance: the "Warm Gray Ember" theme snapshot
 ```
 
 Each `SKILL.md` carries YAML frontmatter (`name`, `description`, and optionally `argument-hint`, `allowed-tools`, `model`) followed by the skill instructions. Edit these files directly — they are the source of truth.
