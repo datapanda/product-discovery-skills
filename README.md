@@ -21,17 +21,30 @@ They compose: generate an as-is blueprint from transcripts with **service-bluepr
 
 ## Install
 
-These are [Claude Code Agent Skills](https://docs.claude.com/en/docs/claude-code/skills) — one `<name>/SKILL.md` per skill, auto-activating on intent and invocable with `/name`.
+These follow the [Agent Skills](https://agentskills.io) open standard — one `<name>/SKILL.md` folder per skill — so they work across several agents. Skills do **not** sync between surfaces; install them wherever you want to use them.
+
+**Claude Code** — copy the folders in; no upload step. Invoke with `/service-blueprint` (etc.), or just describe the task and let them auto-activate.
 
 ```
-cp -r skills/* ~/.claude/skills/          # personal, all projects
-# or, per-project:
-cp -r skills/* .claude/skills/
+cp -r skills/* ~/.claude/skills/     # personal — all your projects
+cp -r skills/* .claude/skills/       # project — checked in for the team
 ```
 
-Invoke with `/service-blueprint`, `/assess-diagram-quality`, `/pressure-test-diagram`, or `/interrogate-data-sources`, or just describe the task and let them auto-activate.
+They can also ship inside a [Claude Code plugin](https://code.claude.com/docs/en/plugins) for one-command install from a marketplace.
 
-`SKILL.md` is an open standard also read by GitHub Copilot, so the same `skills/` folder works there via `.github/skills/`.
+**Claude.ai / Claude Desktop** — zip a skill folder and upload it under **Settings → Features → Skills**. Requires a Pro, Max, Team, or Enterprise plan with code execution ("Create and edit files") enabled; uploaded skills are per-user, not org-wide.
+
+```
+cd skills && zip -r service-blueprint.zip service-blueprint
+```
+
+**Claude API** (and Claude on AWS / Microsoft Foundry) — upload via the `/v1/skills` endpoint, then reference the returned `skill_id` in the `container` parameter of a request that uses the [code execution tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool) (beta header `skills-2025-10-02`). Shared workspace-wide.
+
+**GitHub Copilot** — Copilot reads the same standard; drop the folders in `.github/skills/` (repo) or `~/.copilot/skills/` (personal). Works in VS Code, JetBrains, the Copilot CLI, and the cloud agent.
+
+**Any other agent** — the format is just Markdown. Point the agent at a `SKILL.md` and it has everything it needs.
+
+> **Sandbox-friendly.** Every skill here is Markdown plus — for service-blueprint — one stdlib-only Python script and a fully self-contained HTML template. No network calls, no package installs, so they run as-is inside the locked-down API and claude.ai containers.
 
 ## Repository layout
 
@@ -41,11 +54,13 @@ skills/
   interrogate-data-sources/SKILL.md
   pressure-test-diagram/SKILL.md
   service-blueprint/
-    SKILL.md                  # entry point + pipeline overview
-    references/               # extraction, synthesis, schema, rendering docs
-    assets/blueprint-template.html
+    SKILL.md                          # entry point + pipeline overview
+    README.md                         # human-facing overview
+    references/                       # extraction, synthesis, schema, rendering docs
+    assets/blueprint-template.html    # self-contained render target (single-page PDF export)
     examples/blueprint-model.example.json
-    scripts/render.py         # stdlib-only validate + render
+    scripts/render.py                 # stdlib-only validate + render
+    theme-source/                     # provenance: the "Warm Gray Ember" theme snapshot
 ```
 
 Each `SKILL.md` carries YAML frontmatter (`name`, `description`, and optionally `argument-hint`, `allowed-tools`, `model`) followed by the skill instructions. Edit these files directly — they are the source of truth.
