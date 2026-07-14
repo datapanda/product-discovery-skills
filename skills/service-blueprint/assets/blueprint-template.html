@@ -256,19 +256,25 @@
   .zoomctl button:hover{background:var(--paper)}
   .empty{color:#aab0bd;font-family:var(--mono);font-size:11px;text-align:center;padding-top:6px}
   footer{margin-top:34px;font-family:var(--mono);font-size:11px;color:#9aa2b1;letter-spacing:.03em}
-  /* print / save-as-PDF: main canvas only — no rail, flyout, minimap, or zoom chrome */
+  /* print / save-as-PDF: the whole blueprint on ONE custom-sized page (no pagination),
+     colors preserved. `body.printing` lays it out; the JS injects the matching @page size. */
   .print-stamp{display:none}
+  body.printing{background:#fff}
+  body.printing .rail,
+  body.printing .flyout,
+  body.printing .minimap,
+  body.printing .zoomctl,
+  body.printing .notes{display:none!important}
+  body.printing .wrap{margin:0!important;padding:16px;max-width:none}
+  body.printing .print-stamp{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-soft);
+    letter-spacing:.03em;margin:6px 0 16px}
+  body.printing .map-region{overflow:visible}
+  body.printing .matrix-scroll{overflow:visible;max-height:none;border:none;border-radius:0}
+  body.printing .card-hd .ib,
+  body.printing .dinspect{display:none}
   @media print{
-    @page{size:A3 landscape;margin:10mm}
-    body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .rail,.flyout,.minimap,.zoomctl,.notes{display:none!important}
-    .wrap,body.flyout-open .wrap{margin-left:0!important;padding:0;max-width:none}
-    .print-stamp{display:block;font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);
-      letter-spacing:.03em;margin:6px 0 14px}
-    .matrix-scroll{overflow:visible;max-height:none;border:none;border-radius:0}
-    .card-hd .ib,.dinspect{display:none}
-    .step{break-inside:avoid}
-    .exceptions{break-before:page}
+    @page{margin:0}
+    html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff}
   }
   @media (prefers-reduced-motion:reduce){.dev-card.flash{animation:none}.flyout{transition:none}}
   @media (max-width:860px){body.flyout-open .wrap{margin-left:var(--rail-w)}}
@@ -758,26 +764,42 @@ const BLUEPRINT_MODEL = {"meta": {"title": "Enterprise Order & Fulfillment — A
   document.getElementById("zoom-out").onclick=()=>applyZoom(zoom/1.12);
   zPct.onclick=()=>applyZoom(1);
 
-  /* ---------- print / save as PDF: full canvas fit to page width, title + date/time stamped ---------- */
-  const PRINT_W=1512;                                 // A3 landscape printable width (420−2×10mm) at 96dpi
-  let _prSaved=null;
+  /* ---------- print / save as PDF: whole blueprint on one custom-sized page, colors preserved ---------- */
+  let _prSaved=null, _prStyle=null;
   function enterPrint(){
     if(_prSaved)return;
-    _prSaved={zoom:zoom,width:mEl.style.width,sl:scroller.scrollLeft,st:scroller.scrollTop};
+    _prSaved={zoom:zoom,width:mEl.style.width,cols:mEl.style.gridTemplateColumns,
+              ov:scroller.style.overflow,mh:scroller.style.maxHeight,
+              sl:scroller.scrollLeft,st:scroller.scrollTop};
     const stamp=document.getElementById("print-stamp");
     if(stamp)stamp.textContent=(M.meta.title||"Service Blueprint")+" · "+
       (M.meta.generated_at?"generated "+M.meta.generated_at+" · ":"")+
       "printed "+new Date().toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
+    document.body.classList.add("printing");
+    // lay the whole grid out at its natural, compact width — columns at their min, nothing clipped —
+    // so the entire blueprint sits on a single canvas with no scaling and no page breaks.
+    const nPhases=(M.phases||[]).length;
     mEl.style.zoom=1;
-    const w0=Math.max(mEl.scrollWidth,mEl.offsetWidth); // natural layout width of the full grid (incl. overflow)
-    mEl.style.width=w0+"px";                           // pin layout so print reflow can't shift cards
-    mEl.style.zoom=Math.min(1,PRINT_W/w0);             // scale whole canvas to the printable width
+    mEl.style.gridTemplateColumns="152px repeat("+nPhases+",288px)";
+    mEl.style.width=(152+nPhases*288)+"px";
     drawConnectors();
+    // size one page to the full printed content (+4px guard so a sub-pixel edge can't spill to page 2)
+    const wrap=document.querySelector(".wrap");
+    const w=Math.max(Math.ceil(wrap.scrollWidth), 152+nPhases*288+32)+4;
+    const h=Math.ceil(wrap.scrollHeight)+4;
+    _prStyle=document.createElement("style");
+    _prStyle.textContent="@media print{@page{size:"+w+"px "+h+"px;margin:0}}";
+    document.head.appendChild(_prStyle);
   }
   function exitPrint(){
     if(!_prSaved)return;
+    document.body.classList.remove("printing");
+    if(_prStyle){_prStyle.remove();_prStyle=null;}
+    mEl.style.gridTemplateColumns=_prSaved.cols;
     mEl.style.width=_prSaved.width||"";
     mEl.style.zoom=zoom=_prSaved.zoom;
+    scroller.style.overflow=_prSaved.ov;
+    scroller.style.maxHeight=_prSaved.mh;
     scroller.scrollLeft=_prSaved.sl;scroller.scrollTop=_prSaved.st;
     _prSaved=null;
     scheduleLayout(0);
