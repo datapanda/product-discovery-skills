@@ -282,7 +282,6 @@
   <g id="i-close"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></g>
   <g id="i-branch"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="15" r="2"/><circle cx="14" cy="10" r="2"/><path d="M6 7v6M6 11h3a3 3 0 0 0 3-2"/></g>
   <g id="i-swap"><path d="M4 8h11l-3-3M16 12H5l3 3"/></g>
-  <g id="i-stack"><path d="M4 6h12M4 10h12M4 14h12"/></g>
   <g id="i-mini"><rect x="4" y="5" width="12" height="10" rx="1.5"/><rect x="6" y="7" width="5" height="4" rx="1"/></g>
   <g id="i-flow"><circle cx="5" cy="6" r="1.7"/><circle cx="15" cy="14" r="1.7"/><path d="M5 7.7V11h10V12.3"/></g>
   <g id="i-pain"><path d="M10 3.5l7 12.5H3z"/><path d="M10 8.5v3.2M10 13.6v.1"/></g>
@@ -303,9 +302,8 @@
   <button class="icon on" id="rail-mini" type="button" aria-label="Toggle minimap"><svg viewBox="0 0 20 20"><use href="#i-mini"/></svg><span class="tip">Minimap</span></button>
   <button class="icon on" id="rail-flow" type="button" aria-label="Toggle connectors"><svg viewBox="0 0 20 20"><use href="#i-flow"/></svg><span class="tip">Flow lines</span></button>
   <button class="icon on" id="rail-pain" type="button" aria-label="Toggle pain points"><svg viewBox="0 0 20 20"><use href="#i-pain"/></svg><span class="tip">Pain points</span></button>
-  <button class="icon" id="rail-print" type="button" aria-label="Print or save as PDF"><svg viewBox="0 0 20 20"><use href="#i-print"/></svg><span class="tip">Print / PDF</span></button>
   <div class="spacer"></div>
-  <button class="icon" id="rail-sys" type="button" aria-label="System inventory"><svg viewBox="0 0 20 20"><use href="#i-stack"/></svg><span class="tip">Systems</span></button>
+  <button class="icon" id="rail-print" type="button" aria-label="Print or save as PDF"><svg viewBox="0 0 20 20"><use href="#i-print"/></svg><span class="tip">Print / PDF</span></button>
 </nav>
 
 <aside class="flyout" id="flyout" aria-label="Panel">
@@ -483,7 +481,7 @@ const BLUEPRINT_MODEL = {"meta": {"title": "Enterprise Order & Fulfillment — A
 
   /* ---------- controls ---------- */
   const railMenu=document.getElementById("rail-menu"), railView=document.getElementById("rail-view"),
-        railHoff=document.getElementById("rail-hoff"), railSys=document.getElementById("rail-sys"),
+        railHoff=document.getElementById("rail-hoff"),
         railFlow=document.getElementById("rail-flow"),
         railPain=document.getElementById("rail-pain"),
         ctrlView=document.getElementById("ctrl-view"), ctrlHoff=document.getElementById("ctrl-hoff"),
@@ -519,7 +517,6 @@ const BLUEPRINT_MODEL = {"meta": {"title": "Enterprise Order & Fulfillment — A
   railHoff.onclick=ctrlHoff.onclick=()=>setHoff(!handoffs);
   railFlow.onclick=ctrlFlow.onclick=()=>setFlow(!flowOn);
   railPain.onclick=ctrlPain.onclick=()=>setPain(!painOn);
-  railSys.onclick=()=>setFly(true);
   document.getElementById("inv").addEventListener("click",e=>{const b=e.target.closest(".inv-item");if(b)setSys(b.dataset.sys);});
 
   // card interactions: inline expand, lightbox, deviation badge
