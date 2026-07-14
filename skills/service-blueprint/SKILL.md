@@ -100,53 +100,38 @@ across versions.
 
 ## Core modeling concepts
 
-**Lanes and zones (first column).** Lanes are rows; top-level zones get a thin
-full-width colored section bar. The default, preferred structure is the classic
-service-blueprint stack with a nested Front Stage:
+The `blueprint-model.json` fields, the section-bar/lane mechanics, and the exact
+category colors are defined in `references/blueprint-schema.md` — this is only the
+modeling judgment behind them.
 
-- **Customer Journey** (`color: "#D07B45"`)
-- **Front Stage** group (`lane_groups`, `color: "#587DA8"`) containing two
-  sub-lanes: **Employee actions** and **Systems** (customer-visible system
-  actions, e.g. a portal or CPQ doing work).
-- **Backstage actions** (`color: "#8A8177"`)
-- **Support processes** (`color: "#7E8D80"`)
-
-Every top-level zone carries a `color`; the card's header band and lightbox take
-that color. For an **internal cross-team workflow** with no end-customer journey,
-actor lanes (Customer / Sales / Ops / Finance…) are also valid — set
-`meta.lane_model` accordingly, give each lane a color, and justify the choice in
+**Lanes.** Prefer the classic service-blueprint stack: **Customer Journey**, a
+nested **Front Stage** group (Employee actions + customer-visible **Systems**),
+**Backstage actions**, **Support processes**. For an internal cross-team workflow
+with no end-customer journey, use **actor lanes** (Customer / Sales / Ops /
+Finance…) instead — set `meta.lane_model: "actor_lanes"` and justify it in
 `meta.confidence_notes`. The renderer draws whatever lanes the model provides.
 
-**Phases (columns across the top).** Coarse stages of the journey (e.g. Intake →
-Qualify → Fulfill → Close). Steps are grouped under phases and ordered.
+**Phases** are the coarse left-to-right stages (Intake → Qualify → Fulfill →
+Close); every step belongs to one and carries an `order`.
 
-**Systems of record.** Every system mentioned (ERP/SAP/NetSuite, CRM/Salesforce,
-spreadsheets, email, ticketing, homegrown tools) gets one entry in
-`systems_of_record` and is referenced by id from each step that touches it. The
-render shows a System Inventory in the flyout and system chips on cards, and a
-Handoffs toggle marks steps where the system of record changes hands.
+**Systems of record.** Every tool mentioned (ERP, CRM, spreadsheets, email,
+ticketing, homegrown apps) gets one `systems_of_record` entry, referenced by id
+from each step that touches it; the render surfaces them as card chips, an
+inventory, and a "Handoffs" toggle that marks where the system of record changes.
 
-**Decisions.** Genuine forks in the core path (both outcomes normal) are steps
-with `kind: "decision"` and labeled `branches` — rendered as a diamond. Don't
-use decisions for exceptions; those are deviations.
+**Decisions vs deviations — keep these distinct.** A `kind: "decision"` step is a
+genuine fork in the core path where *both* outcomes are normal (a diamond with
+labeled `branches`). A **deviation** is an exception triggered by a condition
+(credit hold, missing data, escalation, rework) or a step seen in only some
+transcripts. Never model an exception as a decision.
 
-**Core vs deviation.** The central analytical job:
-
-- **Core** = steps that appear consistently across transcripts (or the main
-  narrated path in a single transcript). This is the happy path.
-- **Deviation** = alternate branches triggered by a condition (credit hold,
-  missing data, VIP customer, escalation, rework) or steps present in only some
-  transcripts. Each deviation records its trigger, which transcripts show it,
-  and how it rejoins the core.
-
-**How deviations are shown (rendering).** Deviations are *not* drawn as separate
-branch lanes. Instead each deviation is anchored to the core step it branches
-from (`branch_from`) and rendered as a **color/badge overlay** on that core step
-— an amber marker with a count that expands to reveal the branch (trigger,
-steps, frequency, rejoin). A single global **toggle** switches the whole
-blueprint between **"Core process only"** (a clean happy path) and **"Show all
-variations"** (core plus every deviation overlay). This keeps the default view
-readable while making exceptions one click away.
+**Core vs deviation is the central analytical job.** Core = steps consistent
+across transcripts (or the main narrated path in a single call); deviations =
+conditional branches off it, each naming its trigger, which transcripts show it,
+and where it rejoins the core (see `references/synthesis.md` for the alignment
+logic). In the render, deviations are not separate lanes — each is an overlay
+badge on the core step it branches from, and one global toggle flips the whole
+blueprint between core-only and all-variations.
 
 ## Quality bar
 
