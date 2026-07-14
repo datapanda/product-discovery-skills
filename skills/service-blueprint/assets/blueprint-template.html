@@ -258,20 +258,23 @@
   footer{margin-top:34px;font-family:var(--mono);font-size:11px;color:#9aa2b1;letter-spacing:.03em}
   /* print / save-as-PDF: the whole blueprint on ONE custom-sized page (no pagination),
      colors preserved. `body.printing` lays it out; the JS injects the matching @page size. */
-  .print-stamp{display:none}
+  .print-stamp,.print-credit{display:none}
   body.printing{background:#fff}
   body.printing .rail,
   body.printing .flyout,
   body.printing .minimap,
   body.printing .zoomctl,
   body.printing .notes{display:none!important}
-  body.printing .wrap{margin:0!important;padding:16px;max-width:none}
+  body.printing .wrap{margin:0!important;padding:48px;max-width:none}   /* 48px = 0.5in border @96dpi */
   body.printing .print-stamp{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-soft);
     letter-spacing:.03em;margin:6px 0 16px}
   body.printing .map-region{overflow:visible}
   body.printing .matrix-scroll{overflow:visible;max-height:none;border:none;border-radius:0}
   body.printing .card-hd .ib,
   body.printing .dinspect{display:none}
+  body.printing .print-credit{display:block;margin-top:20px;padding-top:12px;border-top:1px solid var(--grid);
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:var(--ink-soft)}
+  body.printing .print-credit a{color:inherit;text-decoration:none}
   @media print{
     @page{margin:0}
     html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff}
@@ -390,6 +393,7 @@
   </div>
 
   <footer id="footer"></footer>
+  <div class="print-credit" id="print-credit">Created with <a href="https://github.com/datapanda/product-discovery-skills/tree/main/skills/service-blueprint">https://github.com/datapanda/product-discovery-skills/tree/main/skills/service-blueprint</a></div>
 </div>
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true"></div>
 
@@ -785,7 +789,7 @@ const BLUEPRINT_MODEL = {"meta": {"title": "Enterprise Order & Fulfillment — A
     drawConnectors();
     // size one page to the full printed content (+4px guard so a sub-pixel edge can't spill to page 2)
     const wrap=document.querySelector(".wrap");
-    const w=Math.max(Math.ceil(wrap.scrollWidth), 152+nPhases*288+32)+4;
+    const w=Math.max(Math.ceil(wrap.scrollWidth), 152+nPhases*288+96)+4;   // +96 = 0.5in border each side
     const h=Math.ceil(wrap.scrollHeight)+4;
     _prStyle=document.createElement("style");
     _prStyle.textContent="@media print{@page{size:"+w+"px "+h+"px;margin:0}}";
