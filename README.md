@@ -1,4 +1,4 @@
-# Process Design Skills
+# Product Discovery Skills
 
 AI skills for **capturing and pressure-testing how work actually happens**. Business processes live in people's heads; these skills turn them into accurate, inspectable artifacts — and audit the artifacts that already exist. Some skills generate (transcripts → service blueprint), others assess (score, decompose, and trace an existing diagram). The collection grows over time.
 
